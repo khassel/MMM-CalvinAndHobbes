@@ -1,5 +1,4 @@
 const axios = require('axios');
-const cheerio = require('cheerio');
 const probe = require('probe-image-size');
 
 const base = 'https://www.gocomics.com/calvinandhobbes/';
@@ -35,21 +34,20 @@ module.exports = NodeHelper.create({
     },
 
     getComicLink: function (html) {
+        // view-source:https://www.gocomics.com/calvinandhobbes/2025/06/03
+        // <meta property="og:image" content="https://featureassets.gocomics.com/assets/60c4726011a3013e9f5b005056a9545d"/>
         return new Promise( function (resolve, reject) {
             console.log("Trying to get comic link from DOM");
-            const $ = cheerio.load(html);
-            $('div[class^="ShowFiveFavorites"]').remove();
             try {
-                $('div[class^="Comic_comic"] button img').each(function (i, elem) {
-                  console.log("Found IMG SRC:", $(elem).attr('src'));
-                });
-                const comicUrl = $('div[class^="Comic_comic"] button img').attr('src');
-                    console.log('Comic URL: ' + comicUrl);
-                    if (comicUrl != null) {
-                        resolve(comicUrl);
-                    } else {
-                        throw Error("Could not find the right Element");
-                    }
+              const matchArr = html.match(/<meta property="og:image" content="https:\/\/featureassets.gocomics.com\/assets\/[^"]*/);
+              if (matchArr.length > 0) {
+                // console.log('Match: ' + matchArr[0]);
+                const comicUrl = matchArr[0].replace('<meta property="og:image" content="', "");
+                console.log('Comic URL: ' + comicUrl);
+                resolve(comicUrl);
+              } else {
+                throw Error("Could not find the right Element");
+              }
             } catch (e) {
                 reject(e);
             }
