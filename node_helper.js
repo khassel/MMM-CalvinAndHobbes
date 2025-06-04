@@ -1,10 +1,9 @@
-const axios = require('axios');
 const probe = require('probe-image-size');
 
 const base = 'https://www.gocomics.com/calvinandhobbes/';
-var today_url = '';
+let today_url = '';
 
-var NodeHelper = require("node_helper");
+const NodeHelper = require("node_helper");
 module.exports = NodeHelper.create({
 
     start: function () {
@@ -22,11 +21,11 @@ module.exports = NodeHelper.create({
     fetchValidComicLinkForToday: function () {
         return new Promise(function (resolve, reject) {
             console.log("Creating comic link for today");
-            var today = new Date();
-            var year = today.getFullYear();
-            var month = today.getMonth() + 1;
+            const today = new Date();
+            const year = today.getFullYear();
+            let month = today.getMonth() + 1;
             month = (month < 10 ? '0' : '') + month;
-            var date = (today.getDate() < 10 ? '0' : '') + today.getDate();
+            const date = (today.getDate() < 10 ? '0' : '') + today.getDate();
             today_url = base + year + '/' + month + '/' + date;
             console.log('Link for today: ' + today_url);
             resolve(today_url);
@@ -55,7 +54,7 @@ module.exports = NodeHelper.create({
     },
 
     sendComicNotification: function (comicLink) {
-        var comic = {};
+        let comic = {};
 
         probe(comicLink)
         .then(result => {
@@ -70,15 +69,16 @@ module.exports = NodeHelper.create({
 
     sendComic: async function () {
         try {
-            var url = await this.fetchValidComicLinkForToday();
-            var html = await axios.get(url, {
+            const url = await this.fetchValidComicLinkForToday();
+            const response = await fetch(url, {
                 headers: {
                     'Cache-Control': 'no-cache',
                     'Pragma': 'no-cache',
                     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36 Edg/134.0.0.0',
                 },
-	    });
-            var comicUrl = await this.getComicLink(html.data);
+            });
+            const html = await response.text();
+            const comicUrl = await this.getComicLink(html);
             this.sendComicNotification(comicUrl);
         }
         catch (e) {

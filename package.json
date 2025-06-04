@@ -9,7 +9,6 @@
   "author": "Rahul Tadakamadla",
   "license": "ISC",
   "dependencies": {
-    "axios": "^1.9.0",
     "probe-image-size": "^7.2.3"
   },
   "devDependencies": {
